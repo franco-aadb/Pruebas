@@ -14,4 +14,5 @@ class CategorySerializer(serializers.ModelSerializer):
     #projectolist = serializers.HyperlinkedRelatedField(many=True, read_only=True,view_name='project-detail')
     class Meta:
         model = Category
-        fields = "__all__"
+        #fields = "__all__"
+        exclude = ['id']
