@@ -7,5 +7,5 @@ urlpatterns = [
     path('<int:key>',ProjectDetailAV.as_view(), name='project-detail'),
     #Category
     path('category/', CategoryListAV.as_view(), name='category-list'),
-    path('category/<int:key>', CategoryDetailAV.as_view(), name='category-detail'),
+    path('category/<int:key>', CategoryDetailAV.as_view(), name='category-detail'), 
 ]
