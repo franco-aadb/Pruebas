@@ -1,23 +1,62 @@
-from rest_framework import status
+from rest_framework import status, generics, mixins
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from projectlist_app.models import Project,Category
-from projectlist_app.api.serializers import ProjectSerializer,CategorySerializer
+from projectlist_app.models import Project,Category,Comment
+from projectlist_app.api.serializers import ProjectSerializer,CategorySerializer,CommentSerializer
 
 # Create your views here.
+# METODOS CONCRETOS
+class CommentList(generics.ListCreateAPIView):
+    #queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        return Comment.objects.filter(project=pk)
+    
+class CommentCreate(generics.CreateAPIView):
+    serializer_class = CommentSerializer
+    
+    def perform_create(self, serializer):
+        pk = self.kwargs.get('pk')
+        projecto = Project.objects.get(pk=pk)
+        serializer.save(project=projecto)
+
+class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    
+# METODOS GENERICOS
+# class CommentList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAPIView):
+#     queryset = Comment.objects.all()
+#     serializer_class = CommentSerializer
+    
+#     def get(self,request,*args,**kwargs):
+#         return self.list(request,*args, **kwargs)
+    
+#     def post(self,request,*args,**kwargs):
+#         return self.create(request,*args, **kwargs)
+    
+# class CommentDetail(mixins.RetrieveModelMixin,generics.GenericAPIView):
+#     queryset = Comment.objects.all()
+#     serializer_class = CommentSerializer
+    
+#     def get(self,request,*args, **kwargs):
+#         return self.retrieve(request,*args,**kwargs)
+
 class CategoryListAV(APIView):
     def get(self,request):
-        categorias2 = Category.objects.all()
-        serializer = CategorySerializer(categorias2, many = True)
+        categorias = Category.objects.all()
+        serializer = CategorySerializer(categorias, many = True)
         return Response(serializer.data)
 
     def post(self,request):
-        serializer2 = CategorySerializer(data = request.data)
-        if serializer2.is_valid():
-            serializer2.save()
-            return Response(serializer2.data)
+        serializer = CategorySerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
         else:
-            return Response(serializer2.errors, status = status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
 class CategoryDetailAV(APIView):
     def get(self,request,key):

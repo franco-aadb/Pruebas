@@ -1,8 +1,15 @@
 from rest_framework import serializers
-from projectlist_app.models import Project,Category
+from projectlist_app.models import Project,Category,Comment
+
+class CommentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Comment
+        #fields = "__all__"
+        exclude = ['project']
 
 class ProjectSerializer(serializers.ModelSerializer): 
-    
+    comentarios = CommentSerializer(many=True,read_only=True)
     class Meta:
         model = Project
         exclude = ['id']
@@ -16,3 +23,4 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         #fields = "__all__"
         exclude = ['id']
+        
