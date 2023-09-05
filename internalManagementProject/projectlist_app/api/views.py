@@ -7,8 +7,8 @@ from projectlist_app.api.serializers import ProjectSerializer,CategorySerializer
 # Create your views here.
 class CategoryListAV(APIView):
     def get(self,request):
-        categorias = Category.objects.all()
-        serializer = CategorySerializer(categorias, many = True)
+        categorias2 = Category.objects.all()
+        serializer = CategorySerializer(categorias2, many = True)
         return Response(serializer.data)
 
     def post(self,request):
