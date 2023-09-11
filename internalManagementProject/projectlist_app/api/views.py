@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from projectlist_app.models import Project,Category,Comment
 from projectlist_app.api.serializers import ProjectSerializer,CategorySerializer,CommentSerializer
-from projectlist_app.api.permissions import AdminOrReadOnly, CommentUserOrReadOnly
+from projectlist_app.api.permissions import IsAdminOrReadOnly, IsCommentUserOrReadOnly
 
 # Create your views here.
 # METODOS CONCRETOS
@@ -20,7 +20,7 @@ class CommentList(generics.ListCreateAPIView):
     
 class CommentCreate(generics.CreateAPIView):
     serializer_class = CommentSerializer
-    
+    permission_classes = [IsAuthenticated]
     def get_queryset(self):
         return Comment.objects.all()
     
@@ -42,7 +42,7 @@ class CommentCreate(generics.CreateAPIView):
 class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [CommentUserOrReadOnly]
+    permission_classes = [IsCommentUserOrReadOnly]
     
 # METODOS GENERICOS
 # class CommentList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAPIView):
@@ -107,7 +107,7 @@ class CategoryDetailAV(APIView):
 
 #VIEW SET
 class CategoryVS(viewsets.ModelViewSet):
-    permission_classes = [AdminOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 # class CategoryVS(viewsets.ViewSet):
@@ -151,6 +151,7 @@ class CategoryVS(viewsets.ModelViewSet):
 #         return Response(status = status.HTTP_204_NO_CONTENT)
         
 class ProjectListAV(APIView):
+    permission_classes = [IsAdminOrReadOnly]
     def get(self,request):
         projectos = Project.objects.all()
         serializer = ProjectSerializer(projectos,many = True)
@@ -165,6 +166,7 @@ class ProjectListAV(APIView):
             return Response(serializer.errors,status = status.HTTP_400_BAD_REQUEST)
 
 class ProjectDetailAV(APIView):
+    permission_classes = [IsAdminOrReadOnly]
     def get(self,request,key):
         try:
             projecto = Project.objects.get(pk = key)
