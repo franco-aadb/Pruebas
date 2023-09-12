@@ -1,19 +1,38 @@
-from rest_framework import status, generics, mixins , viewsets
+from rest_framework import status, generics, mixins , viewsets, filters
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.throttling import UserRateThrottle,AnonRateThrottle,ScopedRateThrottle
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from projectlist_app.models import Project,Category,Comment
 from projectlist_app.api.serializers import ProjectSerializer,CategorySerializer,CommentSerializer
 from projectlist_app.api.permissions import IsAdminOrReadOnly, IsCommentUserOrReadOnly
+from projectlist_app.api.throttling import CommentCreateThrottle,CommentListThrottle
 
 # Create your views here.
+# FILTROS
+class CommentUser(generics.ListAPIView):
+    serializer_class = CommentSerializer
+    
+    def get_queryset(self):
+        #llamada por url
+        #username = self.kwargs['username']
+        #llamada por parametro
+        username = self.request.query_params.get('username', None)
+        return Comment.objects.filter(comentario_user__username=username)
+    
+    
 # METODOS CONCRETOS
 class CommentList(generics.ListCreateAPIView):
     #queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
+    throttle_classes = [CommentListThrottle]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['comentario_user__username','active']
+    
     def get_queryset(self):
         pk = self.kwargs['pk']
         return Comment.objects.filter(project=pk)
@@ -21,6 +40,7 @@ class CommentList(generics.ListCreateAPIView):
 class CommentCreate(generics.CreateAPIView):
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated]
+    throttle_classes = [CommentCreateThrottle]
     def get_queryset(self):
         return Comment.objects.all()
     
@@ -43,7 +63,9 @@ class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [IsCommentUserOrReadOnly]
-    
+    #throttle_classes = [UserRateThrottle,AnonRateThrottle]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'comentario-detail'
 # METODOS GENERICOS
 # class CommentList(mixins.ListModelMixin,mixins.CreateModelMixin,generics.GenericAPIView):
 #     queryset = Comment.objects.all()
@@ -149,6 +171,13 @@ class CategoryVS(viewsets.ModelViewSet):
 #             return Response({'Error':'Empresa no encontrada'},status=status.HTTP_404_NOT_FOUND)
 #         categoria.delete()
 #         return Response(status = status.HTTP_204_NO_CONTENT)
+class ProjectList(generics.ListAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_fields = ['name','category__name'] #URL='/?name=&category__name='
+    filter_backends = [filters.SearchFilter,filters.OrderingFilter] #order = &ordering=name
+    search_fields = ['name','category__name']
         
 class ProjectListAV(APIView):
     permission_classes = [IsAdminOrReadOnly]
