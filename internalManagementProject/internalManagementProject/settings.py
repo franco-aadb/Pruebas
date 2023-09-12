@@ -37,9 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'projectlist_app',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_filters',
+    'projectlist_app',
     'user_app',
 ]
 
@@ -136,5 +137,21 @@ REST_FRAMEWORK = {
 #        'rest_framework.authentication.BasicAuthentication',
 #        'rest_framework.authentication.TokenAuthentication'
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ]
+    ],
+    # 'DEFAULT_THROTTLE_CLASSES': [
+    #     'rest_framework.throttling.AnonRateThrottle',
+    #     'rest_framework.throttling.UserRateThrottle',
+    # ],
+    'DEFAULT_THROTTLE_RATES':{
+        'anon': '2/day',
+        'user': '3/day',
+        #PERSONALIZADOS
+        'comentario-create': '2/day',
+        'comentario-list' :'8/day',
+        'comentario-detail' : '3/day',
+    }
+}
+
+SIMPLE_JWT = {
+    'ROTATE_REFRESH_TOKENS' : True #Genera un nuevo token, por cada token que ah caducado
 }
