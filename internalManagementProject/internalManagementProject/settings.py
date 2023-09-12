@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -149,9 +150,14 @@ REST_FRAMEWORK = {
         'comentario-create': '2/day',
         'comentario-list' :'8/day',
         'comentario-detail' : '3/day',
-    }
+    },
+    #PAGINACION GENERAL
+    #'DEFAULT_PAGINATION_CLASS':'rest_framework.pagination.LimitOffsetPagination',
+    #'PAGE_SIZE':1,
 }
 
 SIMPLE_JWT = {
-    'ROTATE_REFRESH_TOKENS' : True #Genera un nuevo token, por cada token que ah caducado
+    'ROTATE_REFRESH_TOKENS' : True, #Genera un nuevo token, por cada token que ah caducado
+    'ACCES_TOKEN_LIFETIME': timedelta(days=365),
+    'REFRESH_TOKEN_LIFETIME' : timedelta(days=365),
 }

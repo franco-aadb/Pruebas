@@ -10,6 +10,7 @@ from projectlist_app.models import Project,Category,Comment
 from projectlist_app.api.serializers import ProjectSerializer,CategorySerializer,CommentSerializer
 from projectlist_app.api.permissions import IsAdminOrReadOnly, IsCommentUserOrReadOnly
 from projectlist_app.api.throttling import CommentCreateThrottle,CommentListThrottle
+from projectlist_app.api.pagination import ProjectPagination,ProjectLOPagintion
 
 # Create your views here.
 # FILTROS
@@ -178,6 +179,8 @@ class ProjectList(generics.ListAPIView):
     # filterset_fields = ['name','category__name'] #URL='/?name=&category__name='
     filter_backends = [filters.SearchFilter,filters.OrderingFilter] #order = &ordering=name
     search_fields = ['name','category__name']
+    pagination_class = ProjectPagination
+    #pagination_class = ProjectLOPagintion
         
 class ProjectListAV(APIView):
     permission_classes = [IsAdminOrReadOnly]

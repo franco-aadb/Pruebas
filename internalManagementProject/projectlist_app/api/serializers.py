@@ -10,7 +10,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(serializers.ModelSerializer): 
     comentarios = CommentSerializer(many=True,read_only=True)
-    
+    category_name = serializers.CharField(source='category.name')
     class Meta:
         model = Project
         fields = "__all__"
