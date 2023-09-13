@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator,MaxValueValidator
 from django.contrib.auth.models import User
+from user_app.models import Account
 
 # Create your models here.
 class Category(models.Model):
@@ -28,7 +29,7 @@ class Project(models.Model):
         return self.name
 
 class Comment(models.Model):
-    comentario_user = models.ForeignKey(User,on_delete =models.CASCADE)
+    comentario_user = models.ForeignKey(Account,on_delete =models.CASCADE)
     rating = models.PositiveIntegerField(validators=[MinValueValidator(1),MaxValueValidator(5)])
     text = models.CharField(max_length=200, null=True)
     project = models.ForeignKey(Project, on_delete = models.CASCADE, related_name="comentarios")

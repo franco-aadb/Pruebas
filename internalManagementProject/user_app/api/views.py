@@ -3,8 +3,34 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib import auth
 from user_app.api.serializers import RegistrationSerializer
 #from user_app import models
+
+@api_view(['POST'])
+def login_view(request):
+    data = {}
+    if request.method=='POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        
+    account = auth.authenticate(email=email,password=password)
+    if account is not None:
+        data['response'] = 'El login fué exitoso'
+        data['username'] = account.username
+        data['email'] = account.email
+        data['first_name'] = account.first_name
+        data['last_name'] = account.last_name
+        data['phone_number'] = account.phone_number
+        refresh = RefreshToken.for_user(account)
+        data['token'] = {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token)
+        }
+        return Response(data)
+    else:
+        data['error'] = 'Credenciales Incorectas'
+        return Response(data,status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
 def registration_view(request):
@@ -16,6 +42,9 @@ def registration_view(request):
             data['response'] = 'El registro del usuario fué existoso'  
             data['username'] = account.username
             data['email'] = account.email
+            data['first_name'] = account.first_name
+            data['last_name'] = account.last_name
+            data['phone_number'] = account.phone_number
             #token = Token.objects.get(user = account).key     
             #data['token'] = token 
             refresh = RefreshToken.for_user(account)
@@ -25,7 +54,6 @@ def registration_view(request):
             }
         else:
             data = serializer.errors()
-            
         return Response(data)
     
 @api_view(['POST'])
